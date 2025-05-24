@@ -2,7 +2,7 @@ from web3 import Web3
 import json
 
 #Connect to Ganache
-def OwnerAgree():
+def OwnerAgree(carid,start_date,end_date,region="Joensuu"):
 	w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:7545"))
 
 	#Get smart contract address
@@ -18,7 +18,7 @@ def OwnerAgree():
 	account2=w3.eth.accounts[1] 
 
 	#params:  owner address, customer address, car id
-	tx_hash = contract.functions.setRenters(account, account2, 1).transact({'from': account})
+	tx_hash = contract.functions.setRenters(account, account2,carid,start_date,end_date,region).transact({'from': account})
 	w3.eth.wait_for_transaction_receipt(tx_hash)
 
 	rentinfo = contract.functions.getRenters().call({'from': account}) #Call is better for reading, transact for writing to the blockchain
@@ -78,7 +78,7 @@ def CustomerPay(amount=10):
 	amount=w3.to_wei(amount, 'ether')
 
 	#params:  owner address, customer address, car id
-	tx_hash = contract.functions.sendEth(amount).transact({'from': account2,'value': amount})
+	tx_hash = contract.functions.sendEth().transact({'from': account2,'value': amount})
 	w3.eth.wait_for_transaction_receipt(tx_hash)
 	print(str(amount)+" Eth was transfered from customer to owner")
 

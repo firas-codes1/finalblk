@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
+from ownercode import OwnerAgree, CustomerPay
+from datetime import datetime
 
 class OwnerUI:
     def __init__(self, root, car_data):
@@ -38,12 +40,12 @@ class OwnerUI:
             print(car)
             tk.Label(container, text=car["ID"], bg="#f9f9f9").grid(row=row, column=0, padx=5, pady=5)
 
-            name_entry = tk.Entry(container)
-            name_entry.insert(0, car["Name"])
+            name_entry = tk.Label(container, text=car["Name"])
+            #name_entry.insert(0, car["Name"])
             name_entry.grid(row=row, column=1, padx=5, pady=5)
 
-            price_entry = tk.Entry(container)
-            price_entry.insert(0, car["Price"])
+            price_entry = tk.Label(container,text=car["Price"])
+            #price_entry.insert(0, car["Price"])
             price_entry.grid(row=row, column=2, padx=5, pady=5)
 
             availability_var = tk.StringVar()
@@ -56,6 +58,34 @@ class OwnerUI:
             else:
                 text = "—"
             tk.Label(container, text=text, bg="#f9f9f9", fg="#c0392b").grid(row=row, column=4, padx=5, pady=5)
+
+
+
+            try:
+                def rentCar(car):
+                    booking = car.get("Booking")
+                    carid=car["ID"]
+                    OwnerAgree(int(carid), booking["Start"], booking["End"])
+                    fmt = "%Y-%m-%d"
+                    start = datetime.strptime(booking["Start"], fmt)
+                    end = datetime.strptime(booking["End"], fmt)
+                    tdays=(end - start).days
+                    amount=int(car["Price"])*int(tdays)
+                    CustomerPay(amount)
+                    print(("Payment done (UI) ", amount,))
+
+
+                file=open("ownerrequest.txt","r")
+                text=file.readlines()
+                addr="Customer: "+text[0]
+                total="Days to rent: "+text[1]
+                tk.Label(container, text=addr, bg="#f9f9f9", fg="#c0392b").grid(row=row+1, column=1, padx=5, pady=5)
+                tk.Label(container, text=total, bg="#f9f9f9", fg="#c0392b").grid(row=row+1, column=4, padx=5, pady=5)
+                rent_btn = tk.Button(container, text="Rent!", bg="#27ae60", fg="white",
+                font=('Arial', 12, 'bold'), command=lambda: rentCar(car) ).grid(row=row+1, column=5, padx=5, pady=5)                
+            except:
+                text="No bookings"
+
 
             self.entries.append({
                 "ID": car["ID"],
